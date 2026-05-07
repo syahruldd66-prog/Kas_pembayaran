@@ -29,45 +29,49 @@
         </div>
 
         <div id="adminPanel" class="admin-only glass p-6 mb-8 border-pink-500/30">
-            <h3 class="text-pink-400 font-bold mb-4 text-xs">MODE INPUT DATA</h3>
+            <h3 class="text-pink-400 font-bold mb-4 text-xs italic">INPUT DATA BARU</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <select id="nama" class="bg-slate-800 p-3 rounded-xl border border-white/10 outline-none text-white"></select>
                 <input type="number" id="jumlah" placeholder="Nominal (Rp)" class="bg-white/5 p-3 rounded-xl border border-white/10 outline-none focus:border-pink-500 transition">
                 <select id="bulanInput" class="bg-slate-800 p-3 rounded-xl border border-white/10 outline-none"></select>
-                <button onclick="simpanData()" class="bg-pink-600 hover:bg-pink-500 transition p-3 rounded-xl font-bold uppercase text-xs">Simpan</button>
+                <button onclick="simpanData()" class="bg-pink-600 hover:bg-pink-500 transition p-3 rounded-xl font-bold uppercase text-xs">Simpan Data</button>
             </div>
         </div>
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <div class="flex items-center gap-3">
-                <h2 class="text-xl font-bold">Laporan Kas</h2>
+                <h2 class="text-xl font-bold text-slate-200">Pembukuan</h2>
                 <select id="filterBulan" onchange="fetchData()" class="bg-pink-600/20 text-pink-400 font-bold p-2 rounded-xl border border-pink-500/30 outline-none"></select>
             </div>
-            <div class="glass px-6 py-2 text-sm">Total Saldo: <span id="totalSaldo" class="text-green-400 font-bold">Rp 0</span></div>
+            <div class="glass px-6 py-2 text-sm">Total Saldo: <span id="totalSaldo" class="text-green-400 font-bold font-mono">Rp 0</span></div>
         </div>
 
-        <div class="glass overflow-hidden">
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-400">
-                        <th class="p-5">Nama Anggota</th>
-                        <th class="p-5 text-center">Bulan</th>
-                        <th class="p-5 text-right">Jumlah</th>
-                        <th class="p-5 text-center">Status</th>
-                        <th class="admin-only p-5 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="tabelBody" class="divide-y divide-white/5"></tbody>
-            </table>
+        <div class="glass overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-400">
+                            <th class="p-5">Nama Anggota</th>
+                            <th class="p-5 text-center">Bulan</th>
+                            <th class="p-5 text-right">Jumlah</th>
+                            <th class="p-5 text-center">Status</th>
+                            <th class="admin-only p-5 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelBody" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
+        // KONFIGURASI SUPABASE (DENGAN KEY BARU KAMU)
         const SUPABASE_URL = 'https://rkfhrrvvgfxuzwcjgekb.supabase.co';
-        const SUPABASE_ANON_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrZmhycnZ2Z2Z4dXp3Y2pnZWtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNTIyMjMsImV4cCI6MjA5MzcyODIyM30.0WxKal_XVrQt-Mfe9vgRkaZiC_ctiBpGby_64b9z0fA';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vgU9YBEVrEkEBeAmk_VV9Q_zrM4LsBp';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const DAFTAR_ANGGOTA = ["Aldi Supriadi", "Almira Ramadhani", "Andi Fadhil Rumpang", "Andi Muh Luqman", "Andi Ratu Bilqis", "Andi Syahrul Yudiono", "Anditenrilengka", "Arkan Fikri", "Besse Nurfadillah", "Evi Agnesia", "Febri Aulya Kasunaya", "Fitria", "Melinda Saputri", "Muh Fikran", "Muh Ilham", "Muh. Iqbal", "Muh. Resky Wijaya", "Muhammad Sa'ad Hamzah", "Naswa", "Nur Asmil Hasanah", "Nurul Alifiyatul Aswan", "Nurul Sabila Ramadhani", "Putriani", "Reski Sulistia", "Saskia", "Syahrul (Admin)", "Yuliana", "Zahrah Rahmadhani", "Muh Fauzan Hidayatullah"].sort();
+        // DAFTAR NAMA SISWA SMK 1 WAJO
+        const DAFTAR_ANGGOTA = ["Aldi Supriadi", "Almira Ramadhani", "Andi Fadhil Rumpang", "Andi Muh Luqman", "Andi Ratu Bilqis", "Andi Syahrul Yudiono", "Anditenrilengka", "Arkan Fikri", "Besse Nurfadillah", "Evi Agnesia", "Febri Aulya Kasunaya", "Fitria", "Melinda Saputri", "Muh Fikran", "Muh Ilham", "Muh. Iqbal", "Muh. Resky Wijaya", "Muhammad Sa'ad Hamzah", "Naswa", "Nur Asmil Hasanah", "Nurul Alifiyatul Aswan", "Nurul Sabila Ramadhani", "Putriani", "Reski Sulistia", "Saskia", "Syahrul", "Yuliana", "Zahrah Rahmadhani", "Muh Fauzan Hidayatullah"].sort();
         const DAFTAR_BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         let statusAdmin = false;
 
@@ -86,11 +90,12 @@
 
         function toggleAdmin() {
             if(!statusAdmin) {
-                if(prompt("Password Admin:") === "admin123") {
+                const pass = prompt("Masukkan Password Admin:");
+                if(pass === "arulmodss") {
                     statusAdmin = true;
                     document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
                     document.getElementById('btnAdmin').innerText = "🔓 LOGOUT";
-                } else { alert("Salah!"); }
+                } else { alert("Password Salah!"); }
             } else {
                 statusAdmin = false;
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
@@ -102,18 +107,28 @@
         async function fetchData() {
             const bulan = document.getElementById('filterBulan').value;
             const { data, error } = await _supabase.from('kas_pembayaran').select('*').eq('bulan', bulan).order('created_at', { ascending: false });
-            if (!error) renderTabel(data);
+            if (error) console.error(error.message);
+            else renderTabel(data);
         }
 
         async function simpanData() {
-            const payload = { nama: document.getElementById('nama').value, jumlah: parseInt(document.getElementById('jumlah').value), bulan: document.getElementById('bulanInput').value };
+            const payload = { 
+                nama: document.getElementById('nama').value, 
+                jumlah: parseInt(document.getElementById('jumlah').value), 
+                bulan: document.getElementById('bulanInput').value 
+            };
             const { error } = await _supabase.from('kas_pembayaran').insert([payload]);
-            if (error) alert("Gagal: " + error.message);
-            else document.getElementById('jumlah').value = '';
+            if (error) alert("Gagal Simpan: " + error.message);
+            else {
+                document.getElementById('jumlah').value = '';
+                alert("Data Berhasil Disimpan!");
+            }
         }
 
         async function hapusData(id) {
-            if(confirm("Hapus?")) await _supabase.from('kas_pembayaran').delete().eq('id', id);
+            if(confirm("Hapus data kas ini?")) {
+                await _supabase.from('kas_pembayaran').delete().eq('id', id);
+            }
         }
 
         function renderTabel(data) {
@@ -122,19 +137,22 @@
             data.forEach(item => {
                 total += item.jumlah;
                 tbody.innerHTML += `
-                    <tr class="hover:bg-white/5 transition">
+                    <tr class="hover:bg-white/5 transition border-b border-white/5">
                         <td class="p-5 font-bold text-slate-200">${item.nama}</td>
-                        <td class="p-5 text-center text-xs opacity-50">${item.bulan}</td>
-                        <td class="p-5 text-right font-mono text-green-400">Rp ${item.jumlah.toLocaleString()}</td>
+                        <td class="p-5 text-center text-[10px] opacity-40 uppercase">${item.bulan}</td>
+                        <td class="p-5 text-right font-mono text-green-400 italic">Rp ${item.jumlah.toLocaleString()}</td>
                         <td class="p-5 text-center"><span class="bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-[9px] font-bold border border-green-500/20">LUNAS</span></td>
-                        <td class="${statusAdmin ? '' : 'hidden'} p-5 text-center"><button onclick="hapusData(${item.id})" class="text-red-500 text-xs">Hapus</button></td>
+                        <td class="${statusAdmin ? '' : 'hidden'} p-5 text-center"><button onclick="hapusData(${item.id})" class="text-red-500 text-xs font-bold hover:underline">Hapus</button></td>
                     </tr>`;
             });
             document.getElementById('totalSaldo').innerText = `Rp ${total.toLocaleString()}`;
         }
 
+        // AUTO REFRESH JIKA ADA PERUBAHAN DI SUPABASE
         _supabase.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'kas_pembayaran' }, () => fetchData()).subscribe();
-        init(); fetchData();
+        
+        init(); 
+        fetchData();
     </script>
 </body>
 </html>
