@@ -31,7 +31,7 @@
             <h3 class="text-yellow-500 font-bold mb-4 text-[10px] uppercase tracking-widest italic">Input Pembayaran / Cicilan</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <select id="nama" class="bg-slate-800 p-3 rounded-xl border border-white/10 outline-none text-white text-sm"></select>
-                <input type="number" id="jumlah" placeholder="Nominal Rp (Contoh: 2000)" class="bg-white/5 p-3 rounded-xl border border-white/10 outline-none focus:border-yellow-500 transition text-sm">
+                <input type="number" id="jumlah" placeholder="Nominal Rp" class="bg-white/5 p-3 rounded-xl border border-white/10 outline-none focus:border-yellow-500 transition text-sm">
                 <select id="bulanInput" class="bg-slate-800 p-3 rounded-xl border border-white/10 outline-none text-sm"></select>
                 <button onclick="simpanData()" class="bg-yellow-600 hover:bg-yellow-500 transition p-3 rounded-xl font-bold uppercase text-[10px]">Simpan Transaksi</button>
             </div>
@@ -69,7 +69,7 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_vgU9YBEVrEkEBeAmk_VV9Q_zrM4LsBp';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const TARGET_LUNAS = 10000; // Ganti angka ini untuk standar lunasmu
+        const TARGET_LUNAS = 10000;
         const DAFTAR_ANGGOTA = ["Aldi Supriadi", "Almira Ramadhani", "Andi Fadhil Rumpang", "Andi Muh Luqman", "Andi Ratu Bilqis", "Andi Syahrul Yudiono", "Anditenrilengka", "Arkan Fikri", "Besse Nurfadillah", "Evi Agnesia", "Febri Aulya Kasunaya", "Fitria", "Melinda Saputri", "Muh Fikran", "Muh Ilham", "Muh. Iqbal", "Muh. Resky Wijaya", "Muhammad Sa'ad Hamzah", "Naswa", "Nur Asmil Hasanah", "Nurul Alifiyatul Aswan", "Nurul Sabila Ramadhani", "Putriani", "Reski Sulistia", "Saskia", "Syahrul", "Yuliana", "Zahrah Rahmadhani", "Muh Fauzan Hidayatullah"].sort();
         const DAFTAR_BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         let statusAdmin = false;
@@ -87,13 +87,18 @@
             });
         }
 
+        // --- LOGIN DENGAN PW admin123 ---
         function toggleAdmin() {
-            if(!statusAdmin) {
-                if(prompt("Password Admin:") === "arulmodss") {
+            if (!statusAdmin) {
+                const pass = prompt("Masukkan Password Admin:");
+                if (pass === "admin123") {
                     statusAdmin = true;
+                    alert("Login Berhasil!");
                     document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
                     document.getElementById('btnAdmin').innerText = "🔓 LOGOUT";
-                } else { alert("Salah!"); }
+                } else {
+                    alert("Password Salah! Coba lagi.");
+                }
             } else {
                 statusAdmin = false;
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
@@ -110,7 +115,7 @@
 
         async function simpanData() {
             const jml = document.getElementById('jumlah').value;
-            if (!jml || jml <= 0) return alert("Masukkan jumlah uang!");
+            if (!jml || jml <= 0) return alert("Masukkan nominal uang!");
             
             const payload = { 
                 nama: document.getElementById('nama').value, 
@@ -119,58 +124,48 @@
             };
             const { error } = await _supabase.from('kas_pembayaran').insert([payload]);
             if (error) alert("Error: " + error.message);
-            else { document.getElementById('jumlah').value = ''; alert("Data Masuk!"); }
-        }
-
-        async function hapusData(id) {
-            if(confirm("Hapus transaksi ini?")) {
-                await _supabase.from('kas_pembayaran').delete().eq('id', id);
-            }
+            else { document.getElementById('jumlah').value = ''; alert("Data Berhasil Disimpan!"); }
         }
 
         function processAndRender(rawRecords) {
             const summary = {};
             let totalKasBulanIni = 0;
 
-            // Kelompokkan berdasarkan nama untuk sistem cicil
             rawRecords.forEach(rec => {
-                if(!summary[rec.nama]) summary[rec.nama] = { total: 0, ids: [] };
+                if(!summary[rec.nama]) summary[rec.nama] = { total: 0 };
                 summary[rec.nama].total += rec.jumlah;
-                summary[rec.nama].ids.push(rec.id);
                 totalKasBulanIni += rec.jumlah;
             });
 
             const tbody = document.getElementById('tabelBody');
             tbody.innerHTML = '';
 
-            // Tampilkan daftar semua anggota
             DAFTAR_ANGGOTA.forEach(nama => {
-                const dataSiswa = summary[nama] || { total: 0, ids: [] };
+                const dataSiswa = summary[nama] || { total: 0 };
                 const isLunas = dataSiswa.total >= TARGET_LUNAS;
                 const statusColor = dataSiswa.total === 0 ? 'opacity-20' : (isLunas ? 'text-green-400' : 'text-yellow-400');
-                const badgeColor = isLunas ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+                const badge = isLunas ? 'LUNAS' : (dataSiswa.total > 0 ? 'NYICIL' : 'BELUM BAYAR');
+                const badgeClass = isLunas ? 'border-green-500/20 text-green-400 bg-green-500/10' : (dataSiswa.total > 0 ? 'border-yellow-500/20 text-yellow-400 bg-yellow-500/10' : 'border-red-500/20 text-red-500 bg-red-500/10');
                 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-white/5 transition border-b border-white/5 ${dataSiswa.total === 0 ? 'opacity-40' : ''}">
+                    <tr class="hover:bg-white/5 transition border-b border-white/5 ${dataSiswa.total === 0 ? 'opacity-30' : ''}">
                         <td class="p-5 font-bold text-slate-200 text-sm">${nama}</td>
                         <td class="p-5 text-right font-mono italic text-sm ${statusColor}">Rp ${dataSiswa.total.toLocaleString()}</td>
                         <td class="p-5 text-center">
-                            ${dataSiswa.total > 0 ? `
-                                <span class="px-3 py-1 rounded-full text-[8px] font-black border ${badgeColor}">
-                                    ${isLunas ? 'LUNAS' : 'NYICIL'}
-                                </span>
-                            ` : '<span class="text-[8px] opacity-30 tracking-widest font-bold text-red-500">BELUM BAYAR</span>'}
+                            <span class="px-3 py-1 rounded-full text-[8px] font-black border ${badgeClass}">
+                                ${badge}
+                            </span>
                         </td>
                         <td class="${statusAdmin ? '' : 'hidden'} p-5 text-center">
-                            <button onclick="hapusTerakhir('${nama}')" class="text-[9px] font-bold text-red-500 hover:underline">RESET</button>
+                            <button onclick="hapusSiswa('${nama}')" class="text-red-500 font-bold text-[10px]">RESET</button>
                         </td>
                     </tr>`;
             });
             document.getElementById('totalSaldo').innerText = `Rp ${totalKasBulanIni.toLocaleString()}`;
         }
 
-        async function hapusTerakhir(nama) {
-            if(confirm(`Hapus semua catatan cicilan ${nama} di bulan ini?`)) {
+        async function hapusSiswa(nama) {
+            if(confirm(`Hapus semua data cicilan ${nama} di bulan ini?`)) {
                 const bulan = document.getElementById('filterBulan').value;
                 await _supabase.from('kas_pembayaran').delete().eq('nama', nama).eq('bulan', bulan);
             }
