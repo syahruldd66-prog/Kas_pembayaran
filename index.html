@@ -7,88 +7,95 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
         body { background: #050a09; color: #e2e8f0; font-family: sans-serif; }
         .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(10px); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 1rem; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        input, select { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
-        .btn-glow { background: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); transition: 0.3s; }
-        .btn-glow:active { transform: scale(0.95); }
-        #splash { position: fixed; inset: 0; background: #050a09; z-index: 100; display: flex; align-items: center; justify-content: center; transition: 0.8s; }
+        .mono { font-family: monospace; }
+        #splash { position: fixed; inset: 0; background: #050a09; z-index: 100; display: flex; align-items: center; justify-content: center; }
+        .jumat-card { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); }
     </style>
 </head>
 <body class="p-4 pb-32">
 
-    <div id="splash">
+    <div id="splash" onclick="this.style.display='none'">
         <div class="text-center">
-            <div class="text-5xl mb-4 animate-bounce">🕌</div>
-            <h1 class="text-2xl font-black tracking-widest text-emerald-500">ARUL MODSS</h1>
-            <div class="w-48 h-1 bg-white/10 mt-4 rounded-full overflow-hidden">
-                <div class="h-full bg-emerald-500 w-full origin-left animate-[shrink_3s_ease-in-out]"></div>
-            </div>
+            <div class="text-5xl mb-4">🕌</div>
+            <h1 class="text-2xl font-black text-emerald-500">ARUL MODSS</h1>
+            <p class="text-[10px] opacity-50 mt-2 italic">Tap untuk masuk</p>
         </div>
     </div>
 
     <header class="glass p-6 mb-6 text-center">
         <h1 class="text-xl font-bold uppercase tracking-tighter">Laporan <span class="text-emerald-500">Rohis</span></h1>
-        <p class="text-[9px] opacity-40 mt-1 uppercase tracking-widest">SMKN 1 WAJO - Digital System</p>
+        <p class="text-[9px] opacity-40 mt-1 uppercase">SMKN 1 WAJO</p>
     </header>
 
-    <div class="grid grid-cols-2 gap-4 mb-6">
-        <div class="glass p-4 text-center">
-            <p class="text-[8px] uppercase opacity-50 mb-1">Kas Anggota</p>
-            <p id="total-kas" class="text-emerald-400 font-bold mono italic">Rp 0</p>
-        </div>
-        <div class="glass p-4 text-center">
-            <p class="text-[8px] uppercase opacity-50 mb-1">Infaq Sekolah</p>
-            <p id="total-infaq" class="text-yellow-400 font-bold mono italic">Rp 0</p>
-        </div>
-    </div>
-
     <div class="mb-6">
-        <select id="filter-bulan" onchange="loadData()" class="w-full p-3 rounded-xl text-sm font-bold outline-none"></select>
+        <select id="filter-bulan" onchange="loadData()" class="w-full p-4 rounded-xl bg-emerald-900/30 border border-emerald-500/30 text-white font-bold outline-none shadow-lg"></select>
     </div>
 
     <div class="mb-8">
-        <h3 class="text-[10px] font-bold text-yellow-500 mb-3 uppercase tracking-widest px-2">🕌 Infaq Mingguan (Sekolah)</h3>
-        <div class="glass grid grid-cols-4 divide-x divide-white/5 text-center py-4">
-            <div><p class="text-[7px] opacity-40">J-1</p><p id="j1" class="text-[10px] mono">0</p></div>
-            <div><p class="text-[7px] opacity-40">J-2</p><p id="j2" class="text-[10px] mono">0</p></div>
-            <div><p class="text-[7px] opacity-40">J-3</p><p id="j3" class="text-[10px] mono">0</p></div>
-            <div><p class="text-[7px] opacity-40">J-4</p><p id="j4" class="text-[10px] mono">0</p></div>
+        <div class="flex items-center gap-2 mb-3 px-1">
+            <div class="w-1 h-4 bg-yellow-500 rounded-full"></div>
+            <h3 class="text-xs font-bold text-yellow-500 uppercase tracking-widest">Infaq Jumat Sekolah</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            <div class="jumat-card p-4 rounded-2xl text-center">
+                <p class="text-[9px] opacity-60 uppercase mb-1">Jumat 1</p>
+                <p id="j1" class="text-lg font-bold mono text-yellow-400">0</p>
+            </div>
+            <div class="jumat-card p-4 rounded-2xl text-center">
+                <p class="text-[9px] opacity-60 uppercase mb-1">Jumat 2</p>
+                <p id="j2" class="text-lg font-bold mono text-yellow-400">0</p>
+            </div>
+            <div class="jumat-card p-4 rounded-2xl text-center">
+                <p class="text-[9px] opacity-60 uppercase mb-1">Jumat 3</p>
+                <p id="j3" class="text-lg font-bold mono text-yellow-400">0</p>
+            </div>
+            <div class="jumat-card p-4 rounded-2xl text-center">
+                <p class="text-[9px] opacity-60 uppercase mb-1">Jumat 4</p>
+                <p id="j4" class="text-lg font-bold mono text-yellow-400">0</p>
+            </div>
         </div>
     </div>
 
     <div class="mb-10">
-        <h3 class="text-[10px] font-bold text-emerald-500 mb-3 uppercase tracking-widest px-2">👥 Kas Wajib Anggota</h3>
+        <div class="flex items-center gap-2 mb-3 px-1">
+            <div class="w-1 h-4 bg-emerald-500 rounded-full"></div>
+            <h3 class="text-xs font-bold text-emerald-500 uppercase tracking-widest">Kas Anggota Rohis</h3>
+        </div>
         <div class="glass overflow-hidden">
             <table class="w-full text-left text-[11px]">
-                <thead class="bg-white/5 text-emerald-500/50">
-                    <tr><th class="p-4">Nama</th><th class="p-4 text-right">Total</th></tr>
+                <thead class="bg-white/5 text-emerald-500/50 uppercase">
+                    <tr><th class="p-4">Nama</th><th class="p-4 text-right">Total Kas</th></tr>
                 </thead>
                 <tbody id="table-body" class="divide-y divide-white/5"></tbody>
             </table>
         </div>
     </div>
 
-    <button onclick="authAdmin()" class="fixed bottom-24 right-6 w-12 h-12 bg-emerald-600 rounded-full shadow-2xl flex items-center justify-center z-40 border border-white/20">🔐</button>
+    <button onclick="authAdmin()" class="fixed bottom-6 right-6 w-14 h-14 bg-emerald-600 rounded-full shadow-2xl flex items-center justify-center z-40 border-2 border-white/20 text-xl">🔐</button>
 
-    <div id="admin-panel" class="fixed bottom-0 left-0 right-0 glass p-6 bg-[#050a09] border-t border-emerald-500/30 hidden z-50">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xs font-bold uppercase">Input Data</h2>
-            <button onclick="closeAdmin()" class="text-red-500 text-xs">TUTUP</button>
+    <div id="admin-panel" class="fixed inset-x-0 bottom-0 glass p-6 bg-[#050a09] border-t-2 border-emerald-500/50 hidden z-50 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-emerald-400">Panel Input Data</h2>
+            <button onclick="closeAdmin()" class="bg-red-500/20 text-red-500 px-3 py-1 rounded-lg text-[10px] font-bold">TUTUP</button>
         </div>
-        <div class="grid grid-cols-2 gap-2 mb-3">
-            <select id="in-tipe" onchange="checkTipe()" class="p-3 rounded-lg text-[10px] font-bold text-emerald-400">
+        
+        <div class="grid grid-cols-2 gap-3 mb-3">
+            <select id="in-tipe" onchange="checkTipe()" class="bg-white/5 p-4 rounded-xl text-xs border border-white/10 outline-none">
                 <option value="KAS">KAS ANGGOTA</option>
-                <option value="JUMAT1">JUMAT 1</option><option value="JUMAT2">JUMAT 2</option>
-                <option value="JUMAT3">JUMAT 3</option><option value="JUMAT4">JUMAT 4</option>
+                <option value="JUMAT1">INFAQ JUMAT 1</option>
+                <option value="JUMAT2">INFAQ JUMAT 2</option>
+                <option value="JUMAT3">INFAQ JUMAT 3</option>
+                <option value="JUMAT4">INFAQ JUMAT 4</option>
             </select>
-            <select id="in-bulan" class="p-3 rounded-lg text-[10px]"></select>
+            <select id="in-bulan" class="bg-white/5 p-4 rounded-xl text-xs border border-white/10 outline-none"></select>
         </div>
-        <select id="in-nama" class="w-full p-3 rounded-lg text-[10px] mb-3"></select>
-        <input type="number" id="in-jumlah" placeholder="Nominal (Contoh: 10000)" class="w-full p-3 rounded-lg text-[10px] mb-4 outline-none">
-        <button id="btn-simpan" onclick="simpanKeDatabase()" class="w-full btn-glow p-4 rounded-xl font-bold text-xs">KONFIRMASI SIMPAN</button>
+        
+        <select id="in-nama" class="w-full bg-white/5 p-4 rounded-xl text-xs mb-3 border border-white/10 outline-none"></select>
+        <input type="number" id="in-jumlah" placeholder="Masukkan Nominal Rp" class="w-full bg-white/5 p-4 rounded-xl text-xs mb-5 border border-white/10 outline-none focus:border-emerald-500">
+        
+        <button id="btn-simpan" onclick="simpanKeDatabase()" class="w-full bg-emerald-600 p-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all">Simpan Data</button>
     </div>
 
     <script>
@@ -112,8 +119,6 @@
             });
 
             ANGGOTA.forEach(n => iName.innerHTML += `<option value="${n}">${n}</option>`);
-            
-            setTimeout(() => document.getElementById('splash').style.display = 'none', 3000);
             loadData();
         };
 
@@ -137,31 +142,26 @@
             const { data, error } = await _db.from('kas_pembayaran').select('*').eq('bulan', bln);
             if(error) return;
 
-            let tKas = 0, tInfaq = 0;
             const perOrang = {}, jumat = { JUMAT1:0, JUMAT2:0, JUMAT3:0, JUMAT4:0 };
 
             data.forEach(r => {
                 if(r.kategori === 'KAS' || !r.kategori) {
                     perOrang[r.nama] = (perOrang[r.nama] || 0) + r.jumlah;
-                    tKas += r.jumlah;
-                } else {
+                } else if(jumat.hasOwnProperty(r.kategori)) {
                     jumat[r.kategori] += r.jumlah;
-                    tInfaq += r.jumlah;
                 }
             });
 
-            document.getElementById('total-kas').innerText = `Rp ${tKas.toLocaleString()}`;
-            document.getElementById('total-infaq').innerText = `Rp ${tInfaq.toLocaleString()}`;
             ['j1','j2','j3','j4'].forEach((id, i) => {
-                document.getElementById(id).innerText = jumat['JUMAT'+(i+1)].toLocaleString();
+                document.getElementById(id).innerText = `Rp ${jumat['JUMAT'+(i+1)].toLocaleString()}`;
             });
 
             let html = '';
             ANGGOTA.forEach(n => {
                 const total = perOrang[n] || 0;
                 html += `<tr class="border-b border-white/5">
-                    <td class="p-4 font-bold text-slate-300">${n}</td>
-                    <td class="p-4 text-right mono text-emerald-400">Rp ${total.toLocaleString()}</td>
+                    <td class="p-4 font-bold text-slate-300 uppercase text-[9px]">${n}</td>
+                    <td class="p-4 text-right mono text-emerald-400 font-bold">Rp ${total.toLocaleString()}</td>
                 </tr>`;
             });
             document.getElementById('table-body').innerHTML = html;
@@ -172,35 +172,29 @@
             const jml = document.getElementById('in-jumlah').value;
             const tipe = document.getElementById('in-tipe').value;
 
-            if(!jml || jml <= 0) return alert("Nominal tidak valid!");
+            if(!jml || jml <= 0) return alert("Isi jumlah uang!");
 
-            btn.innerText = "SEDANG MENYIMPAN...";
+            btn.innerText = "MEMPROSES...";
             btn.disabled = true;
 
             const payload = {
-                nama: tipe === 'KAS' ? document.getElementById('in-nama').value : 'GLOBAL_SEKOLAH',
+                nama: tipe === 'KAS' ? document.getElementById('in-nama').value : 'SISWA_SEKOLAH',
                 jumlah: parseInt(jml),
                 bulan: document.getElementById('in-bulan').value,
                 kategori: tipe
             };
 
-            // Gunakan try-catch untuk handle error kolom kategori
-            try {
-                const { error } = await _db.from('kas_pembayaran').insert([payload]);
-                if(error) {
-                    console.error(error);
-                    alert("Gagal: " + error.message + "\n\nPastikan kolom 'kategori' sudah ada di Supabase!");
-                } else {
-                    alert("Data Berhasil Masuk!");
-                    document.getElementById('in-jumlah').value = '';
-                    loadData();
-                }
-            } catch (e) {
-                alert("Terjadi kesalahan sistem!");
-            } finally {
-                btn.innerText = "KONFIRMASI SIMPAN";
-                btn.disabled = false;
+            const { error } = await _db.from('kas_pembayaran').insert([payload]);
+            
+            if(error) {
+                alert("Error: " + error.message);
+            } else {
+                alert("Berhasil disimpan!");
+                document.getElementById('in-jumlah').value = '';
+                loadData();
             }
+            btn.innerText = "SIMPAN DATA";
+            btn.disabled = false;
         }
     </script>
 </body>
