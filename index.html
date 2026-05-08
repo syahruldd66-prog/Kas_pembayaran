@@ -3,239 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kas & Infaq Digital</title>
+    <title>Kas Rohis Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background: #050a09; color: #e2e8f0; font-family: sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(10px); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 1rem; }
-        .mono { font-family: monospace; }
-        .jumat-card { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); position: relative; }
-        .admin-only { display: none; }
+        body { background: #040908; color: #e2e8f0; font-family: sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 1.2rem; }
+        .mono { font-family: 'Courier New', Courier, monospace; }
+        .j-card { background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); position: relative; border-radius: 1rem; }
+        .admin-view { display: none; }
         
-        /* Splash Screen Style */
-        #splash { 
-            position: fixed; inset: 0; background: #050a09; z-index: 100; 
-            display: flex; align-items: center; justify-content: center; 
-            transition: opacity 0.8s ease;
+        /* Splash Screen - Tanpa Nama */
+        #loading-screen { 
+            position: fixed; inset: 0; background: #040908; z-index: 9999; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .shimmer { background: linear-gradient(90deg, #040908 0%, #10b98133 50%, #040908 100%); background-size: 200% 100%; animation: shimmer 2s infinite; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     </style>
 </head>
 <body class="p-4 pb-32">
 
-    <div id="splash" onclick="this.style.opacity='0'; setTimeout(()=>this.style.display='none', 800)">
-        <div class="text-center">
-            <div class="text-6xl mb-6 animate-pulse">🕌</div>
-            <h1 class="text-xl font-bold tracking-[0.4em] text-emerald-500 uppercase">Rohis Digital</h1>
-            <div class="w-32 h-[1px] bg-emerald-500/30 mx-auto mt-4"></div>
-            <p class="text-[8px] opacity-40 mt-4 tracking-widest uppercase">Tap untuk melanjutkan</p>
+    <div id="loading-screen" onclick="tutupSplash()">
+        <div class="text-7xl mb-6">🕌</div>
+        <h2 class="text-xl font-black tracking-[0.5em] text-emerald-500 uppercase">Rohis Digital</h2>
+        <div class="w-24 h-[2px] bg-emerald-500/20 mt-4 overflow-hidden">
+            <div class="h-full bg-emerald-500 w-full animate-[ping_1.5s_infinite]"></div>
         </div>
+        <p class="text-[8px] opacity-30 mt-8 tracking-[0.2em] uppercase">Memuat Database...</p>
     </div>
 
-    <header class="glass p-6 mb-6 text-center">
-        <h1 class="text-xl font-bold uppercase tracking-tighter italic">Laporan <span class="text-emerald-500 text-2xl">Rohis</span></h1>
-        <p class="text-[9px] opacity-40 mt-1 tracking-[0.3em]">SMKN 1 WAJO</p>
+    <header class="glass p-6 mb-6 text-center border-emerald-500/30">
+        <h1 class="text-lg font-bold tracking-tighter uppercase italic">Laporan Keuangan <span class="text-emerald-500 block text-2xl">Rohis</span></h1>
+        <p class="text-[8px] opacity-40 mt-1 tracking-widest">SMKN 1 WAJO</p>
     </header>
 
     <div class="mb-6">
-        <select id="filter-bulan" onchange="loadData()" class="w-full p-4 rounded-xl bg-emerald-900/30 border border-emerald-500/30 text-white font-bold outline-none"></select>
+        <select id="select-bulan" onchange="muatData()" class="w-full p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/20 text-white font-bold outline-none shadow-xl focus:border-emerald-500 transition-all"></select>
     </div>
 
     <div class="mb-8">
-        <div class="flex items-center gap-2 mb-3 px-1">
-            <div class="w-1 h-4 bg-yellow-500 rounded-full"></div>
-            <h3 class="text-xs font-bold text-yellow-500 uppercase tracking-widest">Infaq Jumat Sekolah</h3>
+        <div class="flex items-center gap-2 mb-4 px-1">
+            <span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+            <h3 class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.2em]">Infaq Jumat Sekolah</h3>
         </div>
         <div class="grid grid-cols-2 gap-3">
-            <div class="jumat-card p-4 rounded-2xl text-center">
-                <p class="text-[9px] opacity-60 uppercase mb-1">Jumat 1</p>
-                <p id="j1" class="text-lg font-bold mono text-yellow-400">0</p>
-                <button onclick="hapusKategori('JUMAT1')" class="admin-only absolute top-1 right-2 text-red-500 text-[10px]">✕</button>
+            <div class="j-card p-5 text-center">
+                <p class="text-[8px] opacity-50 uppercase mb-1">Jumat 1</p>
+                <p id="val-j1" class="text-lg font-bold mono text-yellow-400">Rp 0</p>
+                <button onclick="hapusEntry('JUMAT1')" class="admin-view absolute top-1 right-2 text-red-500 text-[10px]">✕</button>
             </div>
-            <div class="jumat-card p-4 rounded-2xl text-center">
-                <p class="text-[9px] opacity-60 uppercase mb-1">Jumat 2</p>
-                <p id="j2" class="text-lg font-bold mono text-yellow-400">0</p>
-                <button onclick="hapusKategori('JUMAT2')" class="admin-only absolute top-1 right-2 text-red-500 text-[10px]">✕</button>
+            <div class="j-card p-5 text-center">
+                <p class="text-[8px] opacity-50 uppercase mb-1">Jumat 2</p>
+                <p id="val-j2" class="text-lg font-bold mono text-yellow-400">Rp 0</p>
+                <button onclick="hapusEntry('JUMAT2')" class="admin-view absolute top-1 right-2 text-red-500 text-[10px]">✕</button>
             </div>
-            <div class="jumat-card p-4 rounded-2xl text-center">
-                <p class="text-[9px] opacity-60 uppercase mb-1">Jumat 3</p>
-                <p id="j3" class="text-lg font-bold mono text-yellow-400">0</p>
-                <button onclick="hapusKategori('JUMAT3')" class="admin-only absolute top-1 right-2 text-red-500 text-[10px]">✕</button>
+            <div class="j-card p-5 text-center">
+                <p class="text-[8px] opacity-50 uppercase mb-1">Jumat 3</p>
+                <p id="val-j3" class="text-lg font-bold mono text-yellow-400">Rp 0</p>
+                <button onclick="hapusEntry('JUMAT3')" class="admin-view absolute top-1 right-2 text-red-500 text-[10px]">✕</button>
             </div>
-            <div class="jumat-card p-4 rounded-2xl text-center">
-                <p class="text-[9px] opacity-60 uppercase mb-1">Jumat 4</p>
-                <p id="j4" class="text-lg font-bold mono text-yellow-400">0</p>
-                <button onclick="hapusKategori('JUMAT4')" class="admin-only absolute top-1 right-2 text-red-500 text-[10px]">✕</button>
+            <div class="j-card p-5 text-center">
+                <p class="text-[8px] opacity-50 uppercase mb-1">Jumat 4</p>
+                <p id="val-j4" class="text-lg font-bold mono text-yellow-400">Rp 0</p>
+                <button onclick="hapusEntry('JUMAT4')" class="admin-view absolute top-1 right-2 text-red-500 text-[10px]">✕</button>
             </div>
         </div>
     </div>
 
-    <div class="mb-10">
-        <div class="flex items-center gap-2 mb-3 px-1">
-            <div class="w-1 h-4 bg-emerald-500 rounded-full"></div>
-            <h3 class="text-xs font-bold text-emerald-500 uppercase tracking-widest">Kas Anggota</h3>
-        </div>
-        <div class="glass overflow-hidden">
+    <div class="mb-10 px-1">
+        <h3 class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-4">Kas Anggota</h3>
+        <div class="glass overflow-hidden border-emerald-500/10">
             <table class="w-full text-left text-[11px]">
-                <thead class="bg-white/5 text-emerald-500/50 uppercase">
+                <thead class="bg-emerald-500/5 text-emerald-500/50 uppercase">
                     <tr>
-                        <th class="p-4">Nama</th>
+                        <th class="p-4">Anggota</th>
                         <th class="p-4 text-right">Total</th>
-                        <th class="admin-only p-4 text-center">Hapus</th>
+                        <th class="admin-view p-4 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody id="table-body" class="divide-y divide-white/5"></tbody>
+                <tbody id="body-tabel" class="divide-y divide-white/5"></tbody>
             </table>
         </div>
     </div>
 
-    <button id="btn-lock" onclick="authAdmin()" class="fixed bottom-6 right-6 w-14 h-14 bg-emerald-600 rounded-full shadow-2xl flex items-center justify-center z-40 border-2 border-white/20 text-xl">🔐</button>
+    <button id="lock-btn" onclick="loginAdmin()" class="fixed bottom-6 right-6 w-14 h-14 bg-emerald-600 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center z-50 border border-white/20 text-xl">🔐</button>
 
-    <div id="admin-panel" class="fixed inset-x-0 bottom-0 glass p-6 bg-[#050a09] border-t-2 border-emerald-500/50 hidden z-50 rounded-t-3xl shadow-2xl">
-        <div class="flex justify-between items-center mb-5">
-            <h2 class="text-xs font-bold uppercase text-emerald-400 italic">Panel Admin</h2>
-            <button onclick="logoutAdmin()" class="bg-red-500/20 text-red-500 px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Logout</button>
+    <div id="panel-input" class="fixed inset-x-4 bottom-4 glass p-6 bg-[#040908]/95 border-t-2 border-emerald-500/50 hidden z-[60] shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-[10px] font-black uppercase text-emerald-400 tracking-widest">Input Data Baru</h2>
+            <button onclick="logout()" class="text-red-500 text-[10px] font-bold uppercase underline">Logout</button>
         </div>
-        <div class="grid grid-cols-2 gap-3 mb-3">
-            <select id="in-tipe" onchange="checkTipe()" class="bg-white/5 p-4 rounded-xl text-xs border border-white/10 outline-none">
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <select id="pilih-tipe" onchange="aturNama()" class="bg-white/5 p-4 rounded-xl text-xs outline-none border border-white/10">
                 <option value="KAS">KAS ANGGOTA</option>
-                <option value="JUMAT1">INFAQ JUMAT 1</option><option value="JUMAT2">INFAQ JUMAT 2</option>
-                <option value="JUMAT3">INFAQ JUMAT 3</option><option value="JUMAT4">INFAQ JUMAT 4</option>
+                <option value="JUMAT1">INFAQ J-1</option><option value="JUMAT2">INFAQ J-2</option>
+                <option value="JUMAT3">INFAQ J-3</option><option value="JUMAT4">INFAQ J-4</option>
             </select>
-            <select id="in-bulan" class="bg-white/5 p-4 rounded-xl text-xs border border-white/10 outline-none"></select>
+            <select id="pilih-bulan" class="bg-white/5 p-4 rounded-xl text-xs border border-white/10"></select>
         </div>
-        <select id="in-nama" class="w-full bg-white/5 p-4 rounded-xl text-xs mb-3 border border-white/10 outline-none"></select>
-        <input type="number" id="in-jumlah" placeholder="Nominal Rp" class="w-full bg-white/5 p-4 rounded-xl text-xs mb-5 border border-white/10 outline-none">
-        <button id="btn-simpan" onclick="simpanKeDatabase()" class="w-full bg-emerald-600 p-4 rounded-2xl font-black text-xs uppercase">Simpan Data</button>
+        <select id="pilih-nama" class="w-full bg-white/5 p-4 rounded-xl text-xs mb-4 border border-white/10"></select>
+        <input type="number" id="input-jumlah" placeholder="Nominal Rp" class="w-full bg-white/5 p-4 rounded-xl text-xs mb-6 border border-white/10 outline-none focus:border-emerald-500">
+        <button id="gas-simpan" onclick="simpanData()" class="w-full bg-emerald-600 p-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all">Simpan Laporan</button>
     </div>
 
     <script>
-        const SB_URL = 'https://rkfhrrvvgfxuzwcjgekb.supabase.co';
-        const SB_KEY = 'sb_publishable_vgU9YBEVrEkEBeAmk_VV9Q_zrM4LsBp';
-        const _db = supabase.createClient(SB_URL, SB_KEY);
+        const URL_SB = 'https://rkfhrrvvgfxuzwcjgekb.supabase.co';
+        const KEY_SB = 'sb_publishable_vgU9YBEVrEkEBeAmk_VV9Q_zrM4LsBp';
+        const _supa = supabase.createClient(URL_SB, KEY_SB);
 
-        const ANGGOTA = ["Aldi Supriadi", "Almira Ramadhani", "Andi Fadhil Rumpang", "Andi Muh Luqman", "Andi Ratu Bilqis", "Andi Syahrul Yudiono", "Anditenrilengka", "Arkan Fikri", "Besse Nurfadillah", "Evi Agnesia", "Febri Aulya Kasunaya", "Fitria", "Melinda Saputri", "Muh Fikran", "Muh Ilham", "Muh. Iqbal", "Muh. Resky Wijaya", "Muhammad Sa'ad Hamzah", "Naswa", "Nur Asmil Hasanah", "Nurul Alifiyatul Aswan", "Nurul Sabila Ramadhani", "Putriani", "Reski Sulistia", "Saskia", "Syahrul", "Yuliana", "Zahrah Rahmadhani", "Muh Fauzan Hidayatullah"].sort();
-        const BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        let isAdmin = false;
+        const DATA_ANGGOTA = ["Aldi Supriadi", "Almira Ramadhani", "Andi Fadhil Rumpang", "Andi Muh Luqman", "Andi Ratu Bilqis", "Andi Syahrul Yudiono", "Anditenrilengka", "Arkan Fikri", "Besse Nurfadillah", "Evi Agnesia", "Febri Aulya Kasunaya", "Fitria", "Melinda Saputri", "Muh Fikran", "Muh Ilham", "Muh. Iqbal", "Muh. Resky Wijaya", "Muhammad Sa'ad Hamzah", "Naswa", "Nur Asmil Hasanah", "Nurul Alifiyatul Aswan", "Nurul Sabila Ramadhani", "Putriani", "Reski Sulistia", "Saskia", "Syahrul", "Yuliana", "Zahrah Rahmadhani", "Muh Fauzan Hidayatullah"].sort();
+        const DATA_BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        let modeAdmin = false;
 
         window.onload = () => {
-            const fMonth = document.getElementById('filter-bulan');
-            const iMonth = document.getElementById('in-bulan');
-            const iName = document.getElementById('in-nama');
-            const now = new Date().getMonth();
+            const fMonth = document.getElementById('select-bulan');
+            const iMonth = document.getElementById('pilih-bulan');
+            const iName = document.getElementById('pilih-nama');
+            const blnNow = new Date().getMonth();
 
-            BULAN.forEach((b, i) => {
+            DATA_BULAN.forEach((b, i) => {
                 const opt = `<option value="${b}">${b}</option>`;
                 fMonth.innerHTML += opt; iMonth.innerHTML += opt;
-                if(i === now) { fMonth.value = b; iMonth.value = b; }
+                if(i === blnNow) { fMonth.value = b; iMonth.value = b; }
             });
 
-            ANGGOTA.forEach(n => iName.innerHTML += `<option value="${n}">${n}</option>`);
+            DATA_ANGGOTA.forEach(n => iName.innerHTML += `<option value="${n}">${n}</option>`);
             
-            // Auto hide splash after 3 seconds
-            setTimeout(() => {
-                const splash = document.getElementById('splash');
-                if(splash) splash.style.opacity = '0';
-                setTimeout(() => { if(splash) splash.style.display = 'none'; }, 800);
-            }, 3000);
-
-            loadData();
+            setTimeout(tutupSplash, 3000);
+            muatData();
         };
 
-        function authAdmin() {
-            if(prompt("Password Admin:") === "admin123") {
-                isAdmin = true;
-                document.getElementById('admin-panel').classList.remove('hidden');
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-                loadData();
-            } else { alert("Salah!"); }
+        function tutupSplash() {
+            const s = document.getElementById('loading-screen');
+            if(s) { s.style.opacity = '0'; setTimeout(() => s.remove(), 600); }
         }
 
-        function logoutAdmin() {
-            isAdmin = false;
-            document.getElementById('admin-panel').classList.add('hidden');
-            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-            loadData();
+        function loginAdmin() {
+            if(prompt("Sandi Petugas:") === "admin123") {
+                modeAdmin = true;
+                document.getElementById('panel-input').classList.remove('hidden');
+                document.querySelectorAll('.admin-view').forEach(el => el.style.display = 'block');
+                muatData();
+            }
         }
 
-        function checkTipe() {
-            const tipe = document.getElementById('in-tipe').value;
-            const nameEl = document.getElementById('in-nama');
-            nameEl.disabled = tipe !== "KAS";
-            nameEl.style.opacity = tipe !== "KAS" ? "0.2" : "1";
+        function logout() {
+            modeAdmin = false;
+            document.getElementById('panel-input').classList.add('hidden');
+            document.querySelectorAll('.admin-view').forEach(el => el.style.display = 'none');
+            muatData();
         }
 
-        async function loadData() {
-            const bln = document.getElementById('filter-bulan').value;
-            const { data, error } = await _db.from('kas_pembayaran').select('*').eq('bulan', bln);
+        function aturNama() {
+            const tipe = document.getElementById('pilih-tipe').value;
+            const el = document.getElementById('pilih-nama');
+            el.disabled = tipe !== "KAS";
+            el.style.opacity = tipe !== "KAS" ? "0.2" : "1";
+        }
+
+        async function muatData() {
+            const bln = document.getElementById('select-bulan').value;
+            const { data, error } = await _supa.from('kas_pembayaran').select('*').eq('bulan', bln);
             if(error) return;
 
-            const perOrang = {}, jumat = { JUMAT1:0, JUMAT2:0, JUMAT3:0, JUMAT4:0 };
+            const kasObj = {}, jmtObj = { JUMAT1:0, JUMAT2:0, JUMAT3:0, JUMAT4:0 };
 
             data.forEach(r => {
                 if(r.kategori === 'KAS' || !r.kategori) {
-                    perOrang[r.nama] = (perOrang[r.nama] || 0) + r.jumlah;
-                } else if(jumat.hasOwnProperty(r.kategori)) {
-                    jumat[r.kategori] += r.jumlah;
+                    kasObj[r.nama] = (kasObj[r.nama] || 0) + r.jumlah;
+                } else if(jmtObj.hasOwnProperty(r.kategori)) {
+                    jmtObj[r.kategori] += r.jumlah;
                 }
             });
 
             ['j1','j2','j3','j4'].forEach((id, i) => {
-                document.getElementById(id).innerText = `Rp ${jumat['JUMAT'+(i+1)].toLocaleString()}`;
+                document.getElementById('val-'+id).innerText = `Rp ${jmtObj['JUMAT'+(i+1)].toLocaleString()}`;
             });
 
-            let html = '';
-            ANGGOTA.forEach(n => {
-                const total = perOrang[n] || 0;
-                html += `<tr class="border-b border-white/5">
-                    <td class="p-4 font-bold text-slate-300 uppercase text-[9px]">${n}</td>
-                    <td class="p-4 text-right mono text-emerald-400 font-bold">Rp ${total.toLocaleString()}</td>
-                    <td class="${isAdmin ? '' : 'hidden'} p-4 text-center">
-                        <button onclick="hapusSiswa('${n}')" class="text-red-500">🗑</button>
+            let rows = '';
+            DATA_ANGGOTA.forEach(n => {
+                const tot = kasObj[n] || 0;
+                rows += `<tr class="border-b border-white/5">
+                    <td class="p-4 font-bold text-slate-300 uppercase tracking-tighter">${n}</td>
+                    <td class="p-4 text-right mono text-emerald-400 font-bold">Rp ${tot.toLocaleString()}</td>
+                    <td class="${modeAdmin ? '' : 'hidden'} p-4 text-center">
+                        <button onclick="hapusEntrySiswa('${n}')" class="text-red-500">🗑</button>
                     </td>
                 </tr>`;
             });
-            document.getElementById('table-body').innerHTML = html;
-            if(isAdmin) document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+            document.getElementById('body-tabel').innerHTML = rows;
+            if(modeAdmin) document.querySelectorAll('.admin-view').forEach(el => el.style.display = 'block');
         }
 
-        async function hapusSiswa(nama) {
-            const bln = document.getElementById('filter-bulan').value;
+        async function hapusEntrySiswa(nama) {
+            const bln = document.getElementById('select-bulan').value;
             if(confirm(`Hapus data ${nama}?`)) {
-                await _db.from('kas_pembayaran').delete().eq('nama', nama).eq('bulan', bln);
-                loadData();
+                await _supa.from('kas_pembayaran').delete().eq('nama', nama).eq('bulan', bln);
+                muatData();
             }
         }
 
-        async function hapusKategori(kat) {
-            const bln = document.getElementById('filter-bulan').value;
+        async function hapusEntry(kat) {
+            const bln = document.getElementById('select-bulan').value;
             if(confirm(`Reset data ${kat}?`)) {
-                await _db.from('kas_pembayaran').delete().eq('kategori', kat).eq('bulan', bln);
-                loadData();
+                await _supa.from('kas_pembayaran').delete().eq('kategori', kat).eq('bulan', bln);
+                muatData();
             }
         }
 
-        async function simpanKeDatabase() {
-            const btn = document.getElementById('btn-simpan');
-            const jml = document.getElementById('in-jumlah').value;
-            const tipe = document.getElementById('in-tipe').value;
-            if(!jml) return;
-            
-            btn.innerText = "WAIT...";
+        async function simpanData() {
+            const btn = document.getElementById('gas-simpan');
+            const nominal = document.getElementById('input-jumlah').value;
+            const tipe = document.getElementById('pilih-tipe').value;
+            if(!nominal) return alert("Nominal kosong!");
+
+            btn.innerText = "MENYIMPAN...";
             btn.disabled = true;
 
             const payload = {
-                nama: tipe === 'KAS' ? document.getElementById('in-nama').value : 'SISWA_SEKOLAH',
-                jumlah: parseInt(jml),
-                bulan: document.getElementById('in-bulan').value,
+                nama: tipe === 'KAS' ? document.getElementById('pilih-nama').value : 'GLOBAL_SEKOLAH',
+                jumlah: parseInt(nominal),
+                bulan: document.getElementById('pilih-bulan').value,
                 kategori: tipe
             };
 
-            await _db.from('kas_pembayaran').insert([payload]);
-            document.getElementById('in-jumlah').value = '';
-            await loadData();
-            
-            btn.innerText = "Simpan Data";
+            const { error } = await _supa.from('kas_pembayaran').insert([payload]);
+            if(error) alert("Gagal: " + error.message);
+            else {
+                document.getElementById('input-jumlah').value = '';
+                muatData();
+            }
+            btn.innerText = "Simpan Laporan";
             btn.disabled = false;
         }
     </script>
